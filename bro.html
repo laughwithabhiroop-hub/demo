@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bhaijaan — Interactive</title>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --glass: rgba(255,255,255,0.05);
+      --accent:#ff6b6b; --accent2:#ffd166; --muted:#9aa4b2;
+      --glass2: rgba(255,255,255,0.03);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background: radial-gradient(1200px 600px at 10% 20%, rgba(255,107,107,0.06), transparent),
+                       radial-gradient(1000px 500px at 90% 80%, rgba(255,209,102,0.04), transparent),
+                       var(--bg);
+      color:white; display:flex; align-items:center; justify-content:center; padding:24px;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* container */
+    .wrap{width:900px; max-width:96vw; min-height:520px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:18px; padding:34px; box-shadow: 0 10px 40px rgba(2,6,23,0.75); position:relative; overflow:hidden;}
+
+    /* floating decor */
+    .wrap::before, .wrap::after{content:""; position:absolute; pointer-events:none}
+    .wrap::before{width:420px; height:420px; right:-120px; top:-120px; background:linear-gradient(135deg,var(--accent), transparent); filter:blur(48px); opacity:.18}
+    .wrap::after{width:360px; height:360px; left:-120px; bottom:-120px; background:linear-gradient(135deg,var(--accent2), transparent); filter:blur(60px); opacity:.12}
+
+    header{display:flex; align-items:center; gap:14px}
+    .logo{width:58px; height:58px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:grid; place-items:center; font-weight:800}
+    h1{font-size:20px; margin:0; letter-spacing:0.2px}
+    p.lead{margin:6px 0 0; color:var(--muted); font-size:13px}
+
+    /* center card */
+    .card{width:560px; max-width:100%; margin:44px auto 0; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:14px; padding:26px; box-shadow: 0 8px 28px rgba(2,6,23,0.55); display:flex; align-items:center; gap:18px; justify-content:center; position:relative}
+
+    .message{font-size:20px; font-weight:700; text-align:center; line-height:1.05}
+    .sub{font-size:13px; color:var(--muted); text-align:center; margin-top:8px}
+
+    .btn-row{display:flex; gap:14px; margin-top:18px}
+    .btn{padding:10px 20px; border-radius:999px; border:0; cursor:pointer; font-weight:700; letter-spacing:0.4px; background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); color:var(--accent2); box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2); transition:transform .18s ease, box-shadow .18s ease}
+    .btn:active{transform:translateY(2px)}
+
+    .btn.primary{background:linear-gradient(90deg,var(--accent), #ff8a7a); color:white; box-shadow: 0 10px 30px rgba(255,107,107,0.12)}
+    .btn.ghost{background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--muted)}
+
+    /* modal / sheets */
+    .overlay{position:absolute; inset:0;background:linear-gradient(180deg, rgba(2,6,23,0.6), rgba(2,6,23,0.85)); display:grid; place-items:center; z-index:30; opacity:0; pointer-events:none; transition:opacity .28s ease}
+    .overlay.show{opacity:1; pointer-events:auto}
+
+    .sheet{width:760px; max-width:94%; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:16px; padding:28px; transform:translateY(24px) scale(.98); opacity:0; transition:all .32s cubic-bezier(.2,.9,.2,1); box-shadow:0 20px 60px rgba(2,6,23,0.6);} 
+    .overlay.show .sheet{transform:none; opacity:1}
+
+    /* big brother style */
+    .big-bhai{display:flex; gap:18px; align-items:center}
+    .avatar{width:120px; height:120px; border-radius:16px; background:linear-gradient(180deg,#1e293b,#0b1220); display:grid; place-items:center; font-size:26px; font-weight:800; color:var(--accent2)}
+    .bhai-msg{flex:1}
+    .bhai-msg h2{margin:0 0 6px; font-size:26px}
+    .bhai-msg p{margin:0;color:var(--muted); font-size:15px}
+
+    /* little dialog style */
+    .dialog{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:18px; border-radius:12px; text-align:center}
+
+    /* beautiful ending */
+    .final-msg{font-size:22px; text-align:center}
+    .final-msg small{display:block; margin-top:8px; color:var(--muted)}
+
+    /* animations */
+    @keyframes floaty{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
+    .avatar{animation:floaty 4s ease-in-out infinite}
+
+    .pulse{animation: pulse 1.6s infinite}
+    @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
+
+    /* responsive */
+    @media (max-width:640px){ .card{padding:18px} .avatar{width:88px;height:88px} }
+
+    /* tiny helper */
+    .hidden{display:none}
+
+    /* emoji styling */
+    .emoji{font-size:20px; margin-left:6px}
+  </style>
+</head>
+<body>
+  <div class="wrap" role="application" aria-label="Bhaijaan interactive">
+    <header>
+      <div class="logo">B</div>
+      <div>
+        <h1>Bhaijaan</h1>
+        <p class="lead">Jai shree allah ✨</p>
+      </div>
+    </header>
+
+    <!-- initial card -->
+    <div class="card" id="initial">
+      <div>
+        <div class="message">kya bhaijaan khundas mei baith hoo kal ki baat s</div>
+        <div class="sub">kya bolta? choose below</div>
+        <div class="sub">Just acknowledge me on WhatsApp aur likhkar batana — mana ya nahi.plss</div>
+        <div class="btn-row">
+          <button class="btn primary" id="yesBtn">Hnji</button>
+          <button class="btn ghost" id="noBtn">Ni bhai</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- overlay used to show sheets / modals -->
+    <div class="overlay" id="overlay" aria-hidden="true">
+      <!-- sheet container -->
+      <div class="sheet" id="sheet">
+        <!-- dynamic content will be injected here -->
+      </div>
+    </div>
+
+    <!-- confetti canvas -->
+    <canvas id="confetti" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:40; display:none;"></canvas>
+
+  </div>
+
+  <script>
+    // Elements
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const overlay = document.getElementById('overlay');
+    const sheet = document.getElementById('sheet');
+    const confettiCanvas = document.getElementById('confetti');
+
+    // Utility to show sheet
+    function showSheet(contentHtml){
+      sheet.innerHTML = contentHtml;
+      overlay.classList.add('show');
+      overlay.setAttribute('aria-hidden','false');
+    }
+    function hideSheet(){ overlay.classList.remove('show'); overlay.setAttribute('aria-hidden','true'); }
+
+    // Big brother message (hinglish) - interpreted as a warm big-brother styled message
+    const bigBhaiHTML = `
+      <div class="big-bhai">
+        <div class="avatar">Bhai</div>
+        <div class="bhai-msg">
+          <h2>Arre mere ek laute jigre ke tukdee</h2>
+          <p>Thand pajaaa, gussa nikal jaa , Theek krdega tera bhai sb, tension mat le. Muthi maar khush rheee fir bakchodi pelenge saath mei.</p>
+          <div style="margin-top:14px; display:flex; gap:10px; justify-content:flex-end">
+            <button class="btn primary" id="bb_ok">Jaaa maaaf kiya</button>
+            <button class="btn ghost" id="bb_cancel">Back</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // 'u sure na' dialog in Hindi with emoji
+    const sureDialogHTML = `
+      <div class="dialog">
+        <div style="font-weight:800; font-size:18px">Tu pakka naraz nahi hai <span class="emoji">😏</span></div>
+        <div style="margin-top:10px; color:var(--muted)">sahi bata , fir bakchodi pelni ha</div>
+        <div style="margin-top:16px; display:flex; gap:10px; justify-content:center">
+          <button class="btn primary" id="sure_yes">aree loduu haa</button>
+          <button class="btn ghost" id="sure_no">jaa bkl naaa</button>
+        </div>
+      </div>
+    `;
+
+    // final beautiful message
+    const beautifulHTML = `
+      <div class="final-msg">
+        <div style="font-weight:900; font-size:28px">Chal bey mere jigrr ke tukdee</div>
+        <small>Chill maaaaarrrr tera bhai dekhega baaaki aaunga tujhe uthane 5 bje meri lugaii ko treat meri taraf seeee🙌</small>
+        <div style="margin-top:18px; display:flex; justify-content:center">
+          <button class="btn primary" id="final_ok">Theek bhaiiii</button>
+        </div>
+      </div>
+    `;
+
+    // show confetti for celebration
+    function playConfetti(){
+      confettiCanvas.style.display = 'block';
+      const ctx = confettiCanvas.getContext('2d');
+      confettiCanvas.width = confettiCanvas.offsetWidth * devicePixelRatio;
+      confettiCanvas.height = confettiCanvas.offsetHeight * devicePixelRatio;
+
+      const W = confettiCanvas.width; const H = confettiCanvas.height;
+      const pieces = [];
+      const colors = ['#ff6b6b','#ffd166','#6be7ff','#9bffb3','#d0bfff'];
+      for(let i=0;i<120;i++){
+        pieces.push({x:Math.random()*W, y:Math.random()*-H, vx:(Math.random()-0.5)*3, vy:Math.random()*6+2, r:Math.random()*8+4, c:colors[Math.floor(Math.random()*colors.length)], rot:Math.random()*360, vr:Math.random()*6-3});
+      }
+      let t=0;
+      const raf = () =>{
+        ctx.clearRect(0,0,W,H);
+        for(const p of pieces){
+          p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot*Math.PI/180);
+          ctx.fillStyle = p.c; ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r*0.6);
+          ctx.restore();
+        }
+        t+=1;
+        if(t<140) requestAnimationFrame(raf); else { ctx.clearRect(0,0,W,H); confettiCanvas.style.display='none'; }
+      }
+      raf();
+    }
+
+    // initial button handlers
+    yesBtn.addEventListener('click', ()=>{
+      // open sheet with big brother message
+      showSheet(bigBhaiHTML);
+      // attach listeners after DOM injection
+      setTimeout(()=>{
+        const bb_ok = document.getElementById('bb_ok');
+        const bb_cancel = document.getElementById('bb_cancel');
+        bb_ok && bb_ok.addEventListener('click', ()=>{ hideSheet(); playConfetti(); });
+        bb_cancel && bb_cancel.addEventListener('click', ()=>{ hideSheet(); });
+      },50);
+    });
+
+    noBtn.addEventListener('click', ()=>{
+      // open confirmation dialog
+      showSheet(sureDialogHTML);
+      setTimeout(()=>{
+        const sure_yes = document.getElementById('sure_yes');
+        const sure_no = document.getElementById('sure_no');
+        sure_yes && sure_yes.addEventListener('click', ()=>{
+          // show beautiful message and confetti
+          showSheet(beautifulHTML);
+          setTimeout(()=>{
+            const final_ok = document.getElementById('final_ok');
+            final_ok && final_ok.addEventListener('click', ()=>{ hideSheet(); playConfetti(); });
+          },50);
+          playConfetti();
+        });
+        sure_no && sure_no.addEventListener('click', ()=>{
+          // show the big brother message after they said no
+          showSheet(bigBhaiHTML);
+          setTimeout(()=>{
+            const bb_ok = document.getElementById('bb_ok');
+            const bb_cancel = document.getElementById('bb_cancel');
+            bb_ok && bb_ok.addEventListener('click', ()=>{ hideSheet(); playConfetti(); });
+            bb_cancel && bb_cancel.addEventListener('click', ()=>{ hideSheet(); });
+          },50);
+        });
+      },50);
+    });
+
+    // close overlay by clicking outside sheet
+    overlay.addEventListener('click', (e)=>{
+      if(e.target === overlay) hideSheet();
+    });
+
+    // keyboard friendly
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape') hideSheet();
+    });
+
+    // accessibility: focus first button
+    yesBtn.focus();
+  </script>
+</body>
+</html>
