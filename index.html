@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1" />
+  <title>Bhaijaan — Interactive</title>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --glass: rgba(255,255,255,0.05);
+      --accent:#ff6b6b; --accent2:#ffd166; --muted:#9aa4b2;
+      --glass2: rgba(255,255,255,0.03);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 600px at 10% 20%, rgba(255,107,107,0.06), transparent),
+                 radial-gradient(1000px 500px at 90% 80%, rgba(255,209,102,0.04), transparent),
+                 var(--bg);
+      color:white; display:flex; align-items:center;
+      justify-content:center; padding:24px;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    /* WRAPPER */
+    .wrap{
+      width:900px; max-width:96vw; min-height:520px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:18px; padding:34px;
+      box-shadow: 0 10px 40px rgba(2,6,23,0.75);
+      position:relative; overflow:hidden;
+    }
+
+    /* BACKGROUND SHINE */
+    .wrap::before, .wrap::after{
+      content:""; position:absolute; pointer-events:none;
+    }
+    .wrap::before{
+      width:420px; height:420px; right:-120px; top:-120px;
+      background:linear-gradient(135deg,var(--accent), transparent);
+      filter:blur(48px); opacity:.18;
+    }
+    .wrap::after{
+      width:360px; height:360px; left:-120px; bottom:-120px;
+      background:linear-gradient(135deg,var(--accent2), transparent);
+      filter:blur(60px); opacity:.12;
+    }
+
+    header{display:flex; align-items:center; gap:14px; flex-wrap:wrap}
+    .logo{
+      width:58px; height:58px; border-radius:12px;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      display:grid; place-items:center; font-weight:800;
+    }
+
+    h1{font-size:20px; margin:0}
+    p.lead{margin:6px 0 0; color:var(--muted); font-size:13px}
+
+    /* MAIN CARD */
+    .card{
+      width:560px; max-width:100%; margin:44px auto 0;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:14px; padding:26px;
+      box-shadow: 0 8px 28px rgba(2,6,23,0.55);
+      display:flex; justify-content:center;
+      text-align:center;
+    }
+
+    .message{font-size:20px; font-weight:700; line-height:1.1}
+    .sub{font-size:13px; color:var(--muted); margin-top:8px}
+
+    .btn-row{display:flex; gap:14px; margin-top:18px; justify-content:center; flex-wrap:wrap}
+    .btn{
+      padding:10px 20px; border-radius:999px; border:0;
+      cursor:pointer; font-weight:700; letter-spacing:0.4px;
+      background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      color:var(--accent2);
+      transition:transform .18s ease;
+    }
+    .btn:active{transform:translateY(2px)}
+    .btn.primary{
+      background:linear-gradient(90deg,var(--accent), #ff8a7a); color:white;
+      box-shadow: 0 10px 30px rgba(255,107,107,0.12);
+    }
+    .btn.ghost{
+      background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--muted);
+    }
+
+    /* OVERLAY */
+    .overlay{
+      position:absolute; inset:0;
+      background:linear-gradient(180deg, rgba(2,6,23,0.6), rgba(2,6,23,0.85));
+      display:grid; place-items:center; z-index:30;
+      opacity:0; pointer-events:none; transition:opacity .28s ease;
+    }
+    .overlay.show{opacity:1; pointer-events:auto}
+
+    /* MODAL */
+    .sheet{
+      width:760px; max-width:94%; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:16px; padding:28px;
+      transform:translateY(20px); opacity:0;
+      transition:all .32s cubic-bezier(.2,.9,.2,1);
+      box-shadow:0 20px 60px rgba(2,6,23,0.6);
+    }
+    .overlay.show .sheet{transform:none; opacity:1}
+
+    .big-bhai{display:flex; gap:18px; align-items:center; flex-wrap:wrap}
+    .avatar{
+      width:120px; height:120px; border-radius:16px;
+      background:linear-gradient(180deg,#1e293b,#0b1220);
+      display:grid; place-items:center; font-size:26px; font-weight:800;
+      color:var(--accent2); animation:floaty 4s ease-in-out infinite;
+    }
+
+    .dialog{background:rgba(255,255,255,0.02); padding:18px; border-radius:12px}
+
+    .final-msg{font-size:22px; text-align:center}
+    .final-msg small{display:block; margin-top:8px; color:var(--muted)}
+
+    @keyframes floaty{
+      0%{transform:translateY(0)}
+      50%{transform:translateY(-8px)}
+      100%{transform:translateY(0)}
+    }
+
+    /* EXTRA MOBILE FIXES */
+    @media (max-width:600px){
+      .wrap{padding:20px; min-height:480px}
+      .card{padding:18px}
+      .message{font-size:17px}
+      .avatar{width:90px; height:90px; font-size:20px}
+      .big-bhai{flex-direction:column; text-align:center}
+      .btn{width:100%; max-width:250px}
+      .sheet{padding:22px}
+      .final-msg{font-size:20px}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap" role="application">
+    <header>
+      <div class="logo">B</div>
+      <div>
+        <h1>Bhaijaan</h1>
+        <p class="lead">Jai shree allah ✨</p>
+      </div>
+    </header>
+
+    <div class="card" id="initial">
+      <div>
+        <div class="message">kya bhaijaan khundas mei baith hoo kal ki baat s</div>
+        <div class="sub">kya bolta? choose below</div>
+        <div class="sub">WhatsApp pe bata dena — mana ya nahi ❤️</div>
+        <div class="btn-row">
+          <button class="btn primary" id="yesBtn">Hnji</button>
+          <button class="btn ghost" id="noBtn">Ni bhai</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay" id="overlay">
+      <div class="sheet" id="sheet"></div>
+    </div>
+
+    <canvas id="confetti" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:40; display:none;"></canvas>
+  </div>
+
+  <script>
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const overlay = document.getElementById('overlay');
+    const sheet = document.getElementById('sheet');
+    const confettiCanvas = document.getElementById('confetti');
+
+    function showSheet(html){
+      sheet.innerHTML = html;
+      overlay.classList.add('show');
+    }
+    function hideSheet(){
+      overlay.classList.remove('show');
+    }
+
+    const bigBhaiHTML = `
+      <div class="big-bhai">
+        <div class="avatar">Bhai</div>
+        <div class="bhai-msg">
+          <h2>Arre mere ek laute jigre ke tukdee</h2>
+          <p>Thand pajaaa, gussa nikal jaa. Tera bhai sab theek karega.</p>
+          <div style="margin-top:14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap">
+            <button class="btn primary" id="bb_ok">Jaaa maaaf kiya</button>
+            <button class="btn ghost" id="bb_cancel">Back</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const sureDialogHTML = `
+      <div class="dialog">
+        <div style="font-weight:800; font-size:18px">Tu pakka naraz nahi hai 😏</div>
+        <div style="margin-top:10px; color:var(--muted)">Sach bata, fir masti karni hai</div>
+        <div style="margin-top:16px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap">
+          <button class="btn primary" id="sure_yes">aree loduu haa</button>
+          <button class="btn ghost" id="sure_no">jaa bkl naaa</button>
+        </div>
+      </div>
+    `;
+
+    const beautifulHTML = `
+      <div class="final-msg">
+        <div style="font-weight:900; font-size:28px">Chal bey mere jigr ke tukdee</div>
+        <small>Chill maar… tera bhai dekhega sab. 5 baje uthane aaunga ❤️</small>
+        <div style="margin-top:18px">
+          <button class="btn primary" id="final_ok">Theek bhaiiii</button>
+        </div>
+      </div>
+    `;
+
+    function playConfetti(){
+      confettiCanvas.style.display = 'block';
+      const ctx = confettiCanvas.getContext('2d');
+      confettiCanvas.width = confettiCanvas.offsetWidth * devicePixelRatio;
+      confettiCanvas.height = confettiCanvas.offsetHeight * devicePixelRatio;
+
+      const W = confettiCanvas.width, H = confettiCanvas.height;
+      const pieces = [];
+      const colors = ['#ff6b6b','#ffd166','#6be7ff','#9bffb3','#d0bfff'];
+
+      for(let i=0;i<120;i++){
+        pieces.push({x:Math.random()*W, y:-Math.random()*H,
+          vx:(Math.random()-0.5)*3, vy:Math.random()*6+2,
+          r:Math.random()*8+4, c:colors[Math.floor(Math.random()*colors.length)],
+          rot:Math.random()*360, vr:Math.random()*6-3});
+      }
+
+      let t=0;
+      const raf = ()=>{
+        ctx.clearRect(0,0,W,H);
+        for(const p of pieces){
+          p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+          ctx.save();
+          ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+          ctx.fillStyle = p.c; ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*0.6);
+          ctx.restore();
+        }
+        t++;
+        if(t<140) requestAnimationFrame(raf);
+        else{ ctx.clearRect(0,0,W,H); confettiCanvas.style.display='none'; }
+      };
+      raf();
+    }
+
+    yesBtn.addEventListener('click', ()=>{
+      showSheet(bigBhaiHTML);
+      setTimeout(()=>{
+        document.getElementById('bb_ok').onclick = ()=>{ hideSheet(); playConfetti(); };
+        document.getElementById('bb_cancel').onclick = hideSheet;
+      },50);
+    });
+
+    noBtn.addEventListener('click', ()=>{
+      showSheet(sureDialogHTML);
+      setTimeout(()=>{
+        document.getElementById('sure_yes').onclick = ()=>{
+          showSheet(beautifulHTML);
+          setTimeout(()=>{
+            document.getElementById('final_ok').onclick = ()=>{ hideSheet(); playConfetti(); };
+          },50);
+          playConfetti();
+        };
+        document.getElementById('sure_no').onclick = ()=>{
+          showSheet(bigBhaiHTML);
+          setTimeout(()=>{
+            document.getElementById('bb_ok').onclick = ()=>{ hideSheet(); playConfetti(); };
+            document.getElementById('bb_cancel').onclick = hideSheet;
+          },50);
+        };
+      },50);
+    });
+
+    overlay.addEventListener('click', e=>{
+      if(e.target===overlay) hideSheet();
+    });
+
+    document.addEventListener('keydown', e=>{
+      if(e.key==='Escape') hideSheet();
+    });
+  </script>
+</body>
+</html>
